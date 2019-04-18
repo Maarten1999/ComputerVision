@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 	cvtColor(image, gray_image, CV_BGR2GRAY);
 
 	// Opslaan van het grijswaarde beeld.
-	string padnaam = "B:\\Test\\Gray_ImageTest.jpg";
+	string padnaam = "Gray_ImageTest.jpg";
 	imwrite(padnaam, gray_image);
 
 	/****** Resultaten naar het scherm sturen ******/
