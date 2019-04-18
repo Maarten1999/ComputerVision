@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "App1_ObjectSelection", "App1_ObjectSelection\App1_ObjectSelection.vcxproj", "{B27EAA08-4999-4800-8B71-258425CAE817}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{797EF36D-931A-4769-A3F9-FD1AEB26A8B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Week 1", "Week 1", "{FC2938F4-F9DA-4DF2-A81E-02C1DF68FF5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -24,6 +28,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FC2938F4-F9DA-4DF2-A81E-02C1DF68FF5C} = {797EF36D-931A-4769-A3F9-FD1AEB26A8B5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {09CD3B8C-6B30-44AE-BD9B-4FAC72A21C1A}
