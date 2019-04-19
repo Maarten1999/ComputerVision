@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Threshold_Operation", "Thre
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Threshold operatie met slider", "Threshold operatie met slider\Threshold operatie met slider.vcxproj", "{8DF2E60C-4ADF-4EB5-A70F-F994F9558633}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blob labeling", "Blob labeling\Blob labeling.vcxproj", "{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -65,6 +67,14 @@ Global
 		{8DF2E60C-4ADF-4EB5-A70F-F994F9558633}.Release|x64.Build.0 = Release|x64
 		{8DF2E60C-4ADF-4EB5-A70F-F994F9558633}.Release|x86.ActiveCfg = Release|Win32
 		{8DF2E60C-4ADF-4EB5-A70F-F994F9558633}.Release|x86.Build.0 = Release|Win32
+		{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94}.Debug|x64.ActiveCfg = Debug|x64
+		{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94}.Debug|x64.Build.0 = Debug|x64
+		{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94}.Debug|x86.ActiveCfg = Debug|Win32
+		{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94}.Debug|x86.Build.0 = Debug|Win32
+		{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94}.Release|x64.ActiveCfg = Release|x64
+		{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94}.Release|x64.Build.0 = Release|x64
+		{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94}.Release|x86.ActiveCfg = Release|Win32
+		{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,6 +85,7 @@ Global
 		{ABDAE87F-FB03-4BF8-B4AF-40B67FB2C4D8} = {FC2938F4-F9DA-4DF2-A81E-02C1DF68FF5C}
 		{9DEEDC3B-6F5D-4163-B330-3FE79386AF19} = {FC2938F4-F9DA-4DF2-A81E-02C1DF68FF5C}
 		{8DF2E60C-4ADF-4EB5-A70F-F994F9558633} = {FC2938F4-F9DA-4DF2-A81E-02C1DF68FF5C}
+		{7F3B62C9-E40D-4AA6-A3E6-7CCA8CCFCB94} = {FC2938F4-F9DA-4DF2-A81E-02C1DF68FF5C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {09CD3B8C-6B30-44AE-BD9B-4FAC72A21C1A}

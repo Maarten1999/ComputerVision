@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 	waitKey(0);
 
 	// Saven op disk om het resultaat in VisionLab nader te kunnen bekijken
-	imwrite("c:\\dump\\binairbeeld.bmp", binaryx);
+	imwrite("binairbeeld.bmp", binaryx);
 
 	//waitKey(0);
 
