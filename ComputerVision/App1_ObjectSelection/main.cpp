@@ -15,38 +15,55 @@
 #include <opencv2\imgproc\imgproc.hpp>
 #include <opencv2\highgui\highgui.hpp>
 #include <iostream>
+#include <chrono>
+#include <ctime>
 #include <string>
+#ifdef _WIN32
+#include <windows.h>
+#include <tchar.h>
+#endif
 #include "image.h"
 #include "blobdetectionavans.h"
-// Laad image
-// Converteer naar zwart wit
-// Threshold image
+
 using std::string;
 using cv::Mat;
 using std::cout;
 using std::endl;
+using namespace std::chrono;
 
 #define THRESHOLD_VALUE			200.0
 #define MAIN_WINDOW				"OBJECT_SELECTION"
+#define ORIGINAL_IMG_WINDOW		"ORIGINAL_IMG"
 #define TRACKBAR_MIN			"AREA_SELECT_MIN"
 #define TRACKBAR_MIN_MAX_SLIDER 20000
 #define TRACKBAR_MAX			"AREA_SELECT_MAX"
 #define TRACKBAR_MAX_MAX_SLIDER 40000
 
+#define NO_KEY_PRESSED			-1
+
 
 Mat LoadImage(const string& path);
 int CountObjects(Mat binaryImage);
 void DrawObjects();
-void OnTrackbarMin(int, void*);
-void OnTrackbarMax(int, void *);
+void OnSliderMove(int, void*);
+string OpenFileDialog();
 
 
 int minAreaValue = 14000;
 int maxAreaValue = 20000;
 Mat binary16S;
+time_point<system_clock> slideTime;
+
+bool sliderMoved(false);
 int main(int argc, char** argv)
 {
-	const string imagePath = "D:/Libraries/Pictures/Projecten/opencv/Images/testsetblokjes/testset3_2.bmp";
+	const string imagePath = OpenFileDialog();
+	if (imagePath == "")
+	{
+		cout << "Kon afbeelding niet selecteren\n";
+		return 1;
+	}
+	
 	Mat origImg = LoadImage(imagePath);
 
 	if (!origImg.data)
@@ -55,10 +72,12 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	cv::namedWindow(ORIGINAL_IMG_WINDOW, CV_WINDOW_AUTOSIZE);
+	cv::imshow(ORIGINAL_IMG_WINDOW, origImg);
+
 	cv::namedWindow(MAIN_WINDOW, CV_WINDOW_AUTOSIZE);
-	cv::createTrackbar(TRACKBAR_MIN, MAIN_WINDOW, &minAreaValue, TRACKBAR_MIN_MAX_SLIDER, OnTrackbarMin);
-	cv::imshow(MAIN_WINDOW, origImg);
-	cv::waitKey(0);
+	cv::createTrackbar(TRACKBAR_MIN, MAIN_WINDOW, &minAreaValue, TRACKBAR_MIN_MAX_SLIDER, OnSliderMove);
+	cv::createTrackbar(TRACKBAR_MAX, MAIN_WINDOW, &maxAreaValue, TRACKBAR_MAX_MAX_SLIDER, OnSliderMove);
 
 	Mat grayImage;
 	cv::cvtColor(origImg, grayImage, CV_BGR2GRAY);
@@ -70,37 +89,19 @@ int main(int argc, char** argv)
 	
 	DrawObjects();
 	
-	
-	/*Mat labeledImage;
-	vector<Point2d *> firstpixelVec;
-	vector<Point2d *> posVec;
-	vector<int> areaVec;
-	int minArea = 13000;
-	int maxArea = 16000;
-	labelBLOBsInfo(binary16S, labeledImage,
-		firstpixelVec, posVec, areaVec, minArea, maxArea);
-
-	cv::namedWindow("Labeled_Image", CV_WINDOW_AUTOSIZE);
-	show16SImageStretch(labeledImage, "Labeled_Image");
-	
-	cout << "Aantal gevonden objecten = " << firstpixelVec.size() << endl;
-	for (int i = 0; i < firstpixelVec.size(); i++) 
+	while (cv::waitKey(10) == NO_KEY_PRESSED)
 	{
-		cout << "Object " << i + 1 << endl;
-		cout << "firstpixel = (" << firstpixelVec[i]->x << "," << firstpixelVec[i]->y << ")" << endl;
-		cout << "centre = (" << posVec[i]->x << "," << posVec[i]->y << ")" << endl;
-		cout << "area = " << areaVec[i] << endl;
-	}*/
-	cv::waitKey(0);
-	//Mat labeledImage;
-	//const int objects = labelBLOBs(binary16S, labeledImage);
+		if (!sliderMoved) continue;
 
-	//cout << "Aantal objecten: " << objects << endl;
-
-	//cv::namedWindow("Labeled_Image", CV_WINDOW_AUTOSIZE);
-	//show16SImageStretch(labeledImage, "Labeled_Image");
-
-	//cv::waitKey(0);
+		auto currentTime = system_clock::now();
+		duration<double> elapsedTime = currentTime - slideTime;
+		
+		if (elapsedTime.count() > 1.5)
+		{
+			DrawObjects();
+			sliderMoved = false;
+		}
+	}	
 
 	return 0;
 }
@@ -117,13 +118,10 @@ int CountObjects(Mat binaryImage)
 	return labelBLOBs(binaryImage, temp);
 }
 
-void OnTrackbarMin(int, void*)
+void OnSliderMove(int pos, void* userData)
 {
-	DrawObjects();
-}
-void OnTrackbarMax(int, void*)
-{
-
+	sliderMoved = true;
+	slideTime = system_clock::now();
 }
 
 void DrawObjects()
@@ -147,24 +145,29 @@ void DrawObjects()
 		//cv::circle(labeledImage, p, areaVec[i] , 3);
 		//cv::rectangle(, r, (0, 2, 255));
 	}
-
 	show16SImageStretch(labeledImage, MAIN_WINDOW);
 	
 }
 
-//
-//int GetAllObjectsInRange(const Mat binary16S, int minArea, int maxArea, Mat& labeledImage, vector<Point2d*>firstPixelVec&, 
-//	)
-//{
-//	Mat labeledImage;
-//	vector<Point2d *> firstpixelVec;
-//	vector<Point2d *> posVec;
-//	vector<int> areaVec;
-//	labelBLOBsInfo(binary16S, labeledImage,
-//		firstpixelVec, posVec, areaVec, minArea, maxArea);
-//}
-//
-//
+string OpenFileDialog()
+{
+	char filename[MAX_PATH];
 
+	OPENFILENAME ofn;
+	ZeroMemory(&filename, sizeof(filename));
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;  
+	ofn.lpstrFilter = "Images\0*.bmp;*.png;*.jpg\0Any File\0*.*\0";
+	ofn.lpstrFile = filename;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrTitle = "Select an image.";
+	ofn.Flags = OFN_PATHMUSTEXIST| OFN_FILEMUSTEXIST;
 
+	if (GetOpenFileNameA(&ofn))
+	{
+		return filename;
+	}
+	return "";
+}
 
