@@ -290,7 +290,7 @@ void show16SImageStretch(Mat m, string windowTitle) {
 	mCopy.convertTo(mCopy, CV_8U);
 	//	namedWindow(windowTitle, CV_WINDOW_AUTOSIZE);
 	imshow(windowTitle, mCopy);
-	waitKey(0);
+	//waitKey(0);
 } // show16SImage
 
   // func: shows a 16S image on the screen. All values clipped to the interval 0-255
