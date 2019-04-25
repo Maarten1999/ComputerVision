@@ -155,8 +155,12 @@ void DrawObjects()
 		//cv::circle(labeledImage, p, areaVec[i] , 3);
 		//cv::rectangle(, r, (0, 2, 255));
 	}
-	show16SImageStretch(labeledImage, MAIN_WINDOW);
+	for (auto* p : firstpixelVec)
+		delete p;
+	for (auto* p : posVec)
+		delete p;
 	
+	show16SImageStretch(labeledImage, MAIN_WINDOW);
 }
 
 string OpenFileDialog()
