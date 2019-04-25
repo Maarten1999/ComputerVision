@@ -57,6 +57,7 @@ time_point<system_clock> slideTime;
 bool sliderMoved(false);
 int main(int argc, char** argv)
 {
+	// Open een file dialog om een image te kiezen.
 	const string imagePath = OpenFileDialog();
 	if (imagePath == "")
 	{
@@ -64,6 +65,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	
+	// Laad image met pad.
 	Mat origImg = LoadImage(imagePath);
 
 	if (!origImg.data)
@@ -72,23 +74,30 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// Maak een window aan met de originele image.
 	cv::namedWindow(ORIGINAL_IMG_WINDOW, CV_WINDOW_AUTOSIZE);
 	cv::imshow(ORIGINAL_IMG_WINDOW, origImg);
 
+	// Maak een window met de object selectie.
 	cv::namedWindow(MAIN_WINDOW, CV_WINDOW_AUTOSIZE);
 	cv::createTrackbar(TRACKBAR_MIN, MAIN_WINDOW, &minAreaValue, TRACKBAR_MIN_MAX_SLIDER, OnSliderMove);
 	cv::createTrackbar(TRACKBAR_MAX, MAIN_WINDOW, &maxAreaValue, TRACKBAR_MAX_MAX_SLIDER, OnSliderMove);
 
 	Mat grayImage;
+	// Converteer image naar zwart wit waarde.
 	cv::cvtColor(origImg, grayImage, CV_BGR2GRAY);
 
 	Mat binaryImage;
+	// Filter de achtergrond van de objecten.
 	cv::threshold(grayImage, binaryImage, THRESHOLD_VALUE, 1, CV_THRESH_BINARY_INV);
 
+	// Converteer image naar 16 bit binary image.
 	binaryImage.convertTo(binary16S, CV_16S);
 	
+	// Teken de objecten die binnen de area liggen.
 	DrawObjects();
 	
+	// Laat programma draaien als er niet op een knop wordt gedrukt, en geef delay van 10 ms om andere processen te draaien.
 	while (cv::waitKey(10) == NO_KEY_PRESSED)
 	{
 		if (!sliderMoved) continue;
@@ -96,6 +105,7 @@ int main(int argc, char** argv)
 		auto currentTime = system_clock::now();
 		duration<double> elapsedTime = currentTime - slideTime;
 		
+		// Als slider 1.5 seconden niet bewogen is begin de objecten te tekenen.
 		if (elapsedTime.count() > 1.5)
 		{
 			DrawObjects();
@@ -145,8 +155,12 @@ void DrawObjects()
 		//cv::circle(labeledImage, p, areaVec[i] , 3);
 		//cv::rectangle(, r, (0, 2, 255));
 	}
-	show16SImageStretch(labeledImage, MAIN_WINDOW);
+	for (auto* p : firstpixelVec)
+		delete p;
+	for (auto* p : posVec)
+		delete p;
 	
+	show16SImageStretch(labeledImage, MAIN_WINDOW);
 }
 
 string OpenFileDialog()
