@@ -40,8 +40,8 @@ cv::Ptr<SimpleBlobDetector> GetBlobDetector()
 {
 	SimpleBlobDetector::Params params;
 	
-	params.minThreshold = 120;
-	params.maxThreshold = 150;
+	params.minThreshold = 80; // 120
+	params.maxThreshold = 250; // 150
 	params.filterByArea = true;
 	params.minArea = 50;
 	//params.minDistBetweenBlobs = 5;
