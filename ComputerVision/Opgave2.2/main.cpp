@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 
 	Run();
 
+	std::cin.get();
 	return 0;
 }
 cv::Ptr<SimpleBlobDetector> GetBlobDetector()
@@ -98,12 +99,18 @@ void Run()
 
 		//cv::imshow(VIDEO_WINDOW, frame);
 
-		Mat grayImage;
+		Mat grayImage, dilation_dst,Gaussianblur, canny;
 		//Converteer image naar zwart wit waarde.
 		cv::cvtColor(frame, grayImage, CV_BGR2GRAY);
 
 		grayImage = ~grayImage; // bitwise not om kleuren om te draaien
 		detector->detect(grayImage, keypoints);
+
+		cv::GaussianBlur(grayImage, Gaussianblur, cv::Size(3, 3), 3, 3, cv::BORDER_DEFAULT);
+		cv::Canny(Gaussianblur, canny, 60, 100, 3, false);
+		cv::imshow("Edge Detected Image", canny);
+
+		detector->detect(binaryx, keypoints);
 
 		Mat frameKeypoints;
 		cv::drawKeypoints(grayImage, keypoints, frameKeypoints, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
@@ -119,7 +126,6 @@ void Run()
 		{
 			cout << "Keypoints: x = " << k.pt.x << ", y = " << k.pt.y << endl;
 		}
-
 
 		keypoints.clear();
 	}
