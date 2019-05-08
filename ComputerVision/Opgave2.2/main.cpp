@@ -55,22 +55,11 @@ cv::Ptr<SimpleBlobDetector> GetBlobDetector()
 	params.filterByCircularity = false;
 	params.minCircularity = 0.7;
 
+	/*params.filterByInertia = false;
+	params.minInertiaRatio = 0.1;
 
-	//params.filterByInertia = true;
-	//params.maxInertiaRatio = 1;
-
-	//params.minDistBetweenBlobs = 5;
-	//params.blobColor = 255;
-
-	//params.filterByCircularity = true;
-	//params.minCircularity = 0.8;
-
-	//params.filterByConvexity = true;
-	//params.minConvexity = 0.5;
-
-	//params.filterByInertia = false;
-	//params.minInertiaRatio = 0.01;
-
+	params.filterByConvexity = false;
+	params.minConvexity = 0.5;*/
 
 	cv::Ptr<SimpleBlobDetector> detector = SimpleBlobDetector::create(params);
 
