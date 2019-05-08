@@ -38,18 +38,18 @@ void on_trackbar(int, void*)
 
 int main(int argc, char *argv[])
 {
-
+	string path = "D:\\Libraries\\Pictures\\Projecten\\opencv\\Images\\tennisbal.png";
 	// zie: project properties - configuration properties - debugging - command arguments
-	if (argc != 2)
+	/*if (argc != 2)
 	{
 		cout << "NB! Geef als command argument volledige padnaam van de imagefile mee" << endl;
 		return -1;
-	}
-	else cout << "De imagefile = " << argv[1] << endl;
+	}*/
+	//else cout << "De imagefile = " << argv[1] << endl;
 
 	// Lees de afbeelding in
 	Mat image;
-	image = imread(argv[1], CV_LOAD_IMAGE_COLOR);
+	image = imread(path, CV_LOAD_IMAGE_COLOR);
 	if (!image.data)
 	{
 		cout << "Could not open or find the image" << std::endl;
