@@ -34,6 +34,7 @@ int main(int argc, char** argv)
 
 	Run();
 
+	std::cin.get();
 	return 0;
 }
 cv::Ptr<SimpleBlobDetector> GetBlobDetector()
@@ -44,17 +45,18 @@ cv::Ptr<SimpleBlobDetector> GetBlobDetector()
 	params.maxThreshold = 150;
 	params.filterByArea = true;
 	params.minArea = 50;
+	params.maxArea = 1000000;
 	//params.minDistBetweenBlobs = 5;
 	//params.blobColor = 255;
 
 	//params.filterByCircularity = true;
 	//params.minCircularity = 0.8;
 
-	//params.filterByConvexity = true;
-	//params.minConvexity = 0.5;
+	params.filterByConvexity = true;
+	params.minConvexity = 0.1;
 
-	//params.filterByInertia = false;
-	//params.minInertiaRatio = 0.01;
+	params.filterByInertia = false;
+	params.minInertiaRatio = 0.01;
 
 
 	cv::Ptr<SimpleBlobDetector> detector = SimpleBlobDetector::create(params);
@@ -90,12 +92,28 @@ void Run()
 
 		//cv::imshow(VIDEO_WINDOW, frame);
 
-		Mat grayImage;
+		Mat grayImage, dilation_dst,Gaussianblur, canny;
 		//Converteer image naar zwart wit waarde.
 		cv::cvtColor(frame, grayImage, CV_BGR2GRAY);
 
+		Mat binaryx;
+		threshold(grayImage, binaryx, 150, 1, CV_THRESH_BINARY);
 
-		detector->detect(grayImage, keypoints);
+		 Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(-1, -1));
+		
+		 // 10x dilation toepassen
+		 for (int i = 1; i < 10; i++) {
+		 	dilate(binaryx, dilation_dst, element);
+		
+		 	cv::imshow("Dilation", dilation_dst * 255);
+		 	binaryx = dilation_dst * 255;
+		 }
+
+		cv::GaussianBlur(grayImage, Gaussianblur, cv::Size(3, 3), 3, 3, cv::BORDER_DEFAULT);
+		cv::Canny(Gaussianblur, canny, 60, 100, 3, false);
+		cv::imshow("Edge Detected Image", canny);
+
+		detector->detect(binaryx, keypoints);
 
 		Mat frameKeypoints;
 		cv::drawKeypoints(grayImage, keypoints, frameKeypoints, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
@@ -111,7 +129,6 @@ void Run()
 		{
 			cout << "Keypoints: x = " << k.pt.x << ", y = " << k.pt.y << endl;
 		}
-
 
 		keypoints.clear();
 	}
