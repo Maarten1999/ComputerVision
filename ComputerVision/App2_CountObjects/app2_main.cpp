@@ -58,7 +58,7 @@ cv::Ptr<SimpleBlobDetector> GetBlobDetector()
 }
 void Run()
 {
-	VideoCapture cap(0);
+	VideoCapture cap(1);
 
 	// Controle of de camera wordt herkend.
 	if (!cap.isOpened())
@@ -97,17 +97,18 @@ void Run()
 
 		//Converteer image naar zwart wit waarde.
 		cv::cvtColor(frame, grayImage, CV_BGR2GRAY);
-
-		threshold(grayImage, binaryx, 100, 255, CV_THRESH_BINARY);
+		grayImage = ~grayImage;
+		threshold(grayImage, binaryx, 80, 255, CV_THRESH_BINARY);
 
 		Mat element = getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5), cv::Point(-1, -1));
 
 		//ivm detecteren van donkere objecten op witte achtergrond moet voor de erosie de kleuren omgedraaid worden
-		binaryx = ~binaryx;
-		// 8x erosie toepassen	
-		erode(binaryx, erosion_dst, element, cv::Point(-1, -1), 8);
-		cv::imshow("Eroded", ~erosion_dst);
-		binaryx = ~erosion_dst;
+		///binaryx = ~binaryx;
+		// 8x dilatie toepassen	
+		cv::dilate(binaryx, erosion_dst, element, cv::Point(-1, -1), 8);
+		
+		cv::imshow("Eroded", erosion_dst);
+		binaryx = erosion_dst;
 
 		detector->detect(binaryx, keypoints);
 
@@ -122,7 +123,7 @@ void Run()
 
 		for (const auto& k : keypoints)
 		{
-			cout << "Keypoints: x = " << k.pt.x << ", y = " << k.pt.y << endl;
+			cout << "Keypoints: x = " << k.pt.x << ", y = " << k.pt.y << ", area = " << k.size << endl;
 		}
 
 		keypoints.clear();
