@@ -7,6 +7,7 @@ class FRC
 public:
 	FRC();
 	void update(float deltaTime);
+	float getAverageFramesPerSecond() const;
 	~FRC();
 private: 
 #define MAXIMUM_SAMPLES 100

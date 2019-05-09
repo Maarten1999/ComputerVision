@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <Windows.h>
 #include "FRC.hpp"
 
 using std::cout;
@@ -58,7 +60,7 @@ cv::Ptr<SimpleBlobDetector> GetBlobDetector()
 }
 void Run()
 {
-	VideoCapture cap(1);
+	VideoCapture cap(0);
 
 	// Controle of de camera wordt herkend.
 	if (!cap.isOpened())
@@ -75,7 +77,7 @@ void Run()
 	vector<cv::KeyPoint> keypoints;
 
 	FRC frc;
-	float lastFrameTime;
+	float lastFrameTime = 0;
 	Mat frame;
 	while (cv::waitKey(1) != ESCAPE_KEY)
 	{
@@ -85,12 +87,16 @@ void Run()
 			break;
 		}
 		
-		//float frameTime; //= currentTimeSinceStart / 1000.0f;
+		SYSTEMTIME st;
+		GetSystemTime(&st);
+		LONG timeMs = (st.wSecond * 1000) + st.wMilliseconds;
+		
+		float frameTime = timeMs / 1000.0f; //= currentTimeSinceStart / 1000.0f;
 
-		//float deltaTime = frameTime - lastFrameTime;
-		//lastFrameTime = frameTime;
+		float deltaTime = frameTime - lastFrameTime;
+		lastFrameTime = frameTime;
 
-		//frc.update(deltaTime);
+		frc.update(deltaTime);
 
 
 		Mat grayImage, erosion_dst, binaryx, frameKeypoints;
@@ -117,7 +123,6 @@ void Run()
 		const string objectCount = std::to_string(keypoints.size());
 		const string text = "Objects: " + objectCount;
 		cv::putText(frameKeypoints, text, cv::Point(20, 30), CV_FONT_NORMAL, 0.8, cv::Scalar(0, 0, 255));
-
 		//const string fps = 
 		cv::imshow(KEYPOINT_VIDEO_WINDOW, frameKeypoints);
 

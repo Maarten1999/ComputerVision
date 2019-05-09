@@ -21,6 +21,11 @@ float FRC::getQueueAvg(std::deque<float> q)
 	
 	return avg;
 }
+
+float FRC::getAverageFramesPerSecond() const
+{
+	return averageFramesPerSecond;
+}
 void FRC::update(float deltaTime)
 {
 	currentFramesPerSecond = 1.0f / deltaTime;
