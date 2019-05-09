@@ -87,7 +87,7 @@ void Run()
 		//Converteer image naar zwart wit waarde.
 		cv::cvtColor(frame, grayImage, CV_BGR2GRAY);
 
-		threshold(grayImage, binaryx, 100, 255, CV_THRESH_BINARY);
+		threshold(grayImage, binaryx, 100, 255, CV_THRESH_BINARY_INV);
 
 		Mat element = getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5), cv::Point(-1, -1));
 
