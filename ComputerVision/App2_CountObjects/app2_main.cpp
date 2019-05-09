@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "FRC.hpp"
 
 using std::cout;
 using std::endl;
@@ -73,6 +74,8 @@ void Run()
 	cv::Ptr<SimpleBlobDetector> detector = GetBlobDetector();
 	vector<cv::KeyPoint> keypoints;
 
+	FRC frc;
+	float lastFrameTime;
 	Mat frame;
 	while (cv::waitKey(1) != ESCAPE_KEY)
 	{
@@ -81,6 +84,14 @@ void Run()
 			cout << "Failed to read frame\n";
 			break;
 		}
+		
+		//float frameTime; //= currentTimeSinceStart / 1000.0f;
+
+		//float deltaTime = frameTime - lastFrameTime;
+		//lastFrameTime = frameTime;
+
+		//frc.update(deltaTime);
+
 
 		Mat grayImage, erosion_dst, binaryx, frameKeypoints;
 
@@ -106,6 +117,7 @@ void Run()
 		const string text = "Objects: " + objectCount;
 		cv::putText(frameKeypoints, text, cv::Point(20, 30), CV_FONT_NORMAL, 0.8, cv::Scalar(0, 0, 255));
 
+		//const string fps = 
 		cv::imshow(KEYPOINT_VIDEO_WINDOW, frameKeypoints);
 
 		for (const auto& k : keypoints)
