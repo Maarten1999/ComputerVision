@@ -58,7 +58,10 @@ int main(int argc, char** argv)
 		
 			//-------OBJECT-DETECTION------//
 			cv::findContours(color_mask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-			//Find the contours of the orange objects.
+
+			if (contours.size() > 0) cout << "\n\nContours: " << contours.size() << endl;
+			else cout << "\n\nNo contours found" << endl;
+
 			std::vector<cv::Moments> mu(contours.size());
 
 			for (auto i = 0; i < contours.size(); i++)
@@ -76,7 +79,7 @@ int main(int argc, char** argv)
 			for (auto i = 0; i < contours.size(); i++)
 			{
 				cv::Scalar color = cv::Scalar(0, 0, 255); // B G R values
-				drawContours(flipped_frame, contours, i, color, 2, 8, hierarchy, 0);
+				drawContours(flipped_frame, contours, i, color, 2, cv::LINE_8, hierarchy, 0);
 				circle(flipped_frame, mc[i], 4, color, CV_FILLED, 8, 0); //draw circle at center of contour
 				
 				cout << "Center: x = " << mc[i].x << ", y = " << mc[i].x << endl;//print center of contour in console
