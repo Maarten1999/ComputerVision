@@ -19,7 +19,7 @@ using std::string;
 
 int main(int argc, char** argv)
 {
-	const auto color_lowest = cv::Scalar(10, 150, 20);
+	const auto color_lowest = cv::Scalar(8, 40, 150);
 	const auto color_highest = cv::Scalar(20, 255, 255);
 
 	cv::Mat frame, scaled_frame, flipped_frame, blurred, hsv, color_mask;
@@ -31,27 +31,26 @@ int main(int argc, char** argv)
 		std::cout << "Cannot open the video" << std::endl;
 		return 1;
 	}
-	// Breedte en hooogte van de frames die de camera genereert ophalen. 
+	// Get generated widht and height from camera 
 	double dWidth = cap.get(CV_CAP_PROP_FRAME_WIDTH);
 	double dHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 	cout << "Frame size : " << dWidth << " x " << dHeight << endl;
 
 	const auto element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5));
 
-	while (cv::waitKey(1) != ESCAPE_KEY)
+	while (cv::waitKey(30) != ESCAPE_KEY)
 	{
 		std::vector<cv::Mat> contours;
 		vector<cv::Vec4i> hierarchy;
 
 		if (cap.read(frame))
 		{
-			
-			flip(frame, flipped_frame, +1);
-			cv::GaussianBlur(flipped_frame, blurred, cv::Size(11, 11), 0);
+			cv::flip(frame, flipped_frame, +1);
+			cv::GaussianBlur(flipped_frame, blurred, cv::Size(5, 5), 0);
 
 			cv::cvtColor(blurred, hsv, CV_BGR2HSV); //Convert the blurred image to HSV.
 		
-			cv::inRange(hsv, color_lowest, color_highest, color_mask); //Create a binary output with only the blue's.
+			cv::inRange(hsv, color_lowest, color_highest, color_mask);
 
 			//Erode & Dilate to remove smaller objects
 			cv::erode(color_mask, color_mask, element, cv::Point(-1, -1), 5);
@@ -59,7 +58,7 @@ int main(int argc, char** argv)
 		
 			//-------OBJECT-DETECTION------//
 			cv::findContours(color_mask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-			//Find the contours of the blue objects.
+			//Find the contours of the orange objects.
 			std::vector<cv::Moments> mu(contours.size());
 
 			for (auto i = 0; i < contours.size(); i++)
@@ -73,21 +72,19 @@ int main(int argc, char** argv)
 			{
 				mc[i] = cv::Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
 			}
-			cout << "\n\nContours found: " << contours.size() << endl;
+
 			for (auto i = 0; i < contours.size(); i++)
 			{
 				cv::Scalar color = cv::Scalar(0, 0, 255); // B G R values
 				drawContours(flipped_frame, contours, i, color, 2, 8, hierarchy, 0);
-				circle(flipped_frame, mc[i], 4, color, -1, 8, 0);
+				circle(flipped_frame, mc[i], 4, color, CV_FILLED, 8, 0); //draw circle at center of contour
 				
-				cout << "Center: x = " << mc[i].x << ", y = " << mc[i].x << endl;
+				cout << "Center: x = " << mc[i].x << ", y = " << mc[i].x << endl;//print center of contour in console
 			}
-			cv::imshow("Contours", flipped_frame); //Finally show the image with the contours
+			cv::imshow("Contours", flipped_frame); //Show the image with the contours
 
 		}
 	}
-
-	cv::waitKey(0);
 	return 0;
 }
 
