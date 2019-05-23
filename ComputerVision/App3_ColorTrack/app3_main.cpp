@@ -19,12 +19,12 @@ using std::string;
 
 int main(int argc, char** argv)
 {
-	const auto color_lowest = cv::Scalar(8, 40, 150);
-	const auto color_highest = cv::Scalar(20, 255, 255);
+	const auto color_lowest = cv::Scalar(2, 128, 150);//8, 40, 150
+	const auto color_highest = cv::Scalar(20, 255, 255); // 20,255,255
 
 	cv::Mat frame, scaled_frame, flipped_frame, blurred, hsv, color_mask;
 
-	VideoCapture cap(0);
+	VideoCapture cap(1);
 
 	if(!cap.isOpened())
 	{
@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 
 	const auto element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5));
 
-	while (cv::waitKey(30) != ESCAPE_KEY)
+	while (cv::waitKey(1) != ESCAPE_KEY)
 	{
 		std::vector<cv::Mat> contours;
 		vector<cv::Vec4i> hierarchy;
