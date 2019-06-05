@@ -19,12 +19,12 @@ using std::string;
 
 int main(int argc, char** argv)
 {
-	const auto color_lowest = cv::Scalar(2, 128, 150);//8, 40, 150
+	const auto color_lowest = cv::Scalar(2, 80, 150);//8, 40, 150
 	const auto color_highest = cv::Scalar(20, 255, 255); // 20,255,255
 
 	cv::Mat frame, scaled_frame, flipped_frame, blurred, hsv, color_mask;
 
-	VideoCapture cap(1);
+	VideoCapture cap(0);
 
 	if(!cap.isOpened())
 	{
@@ -130,3 +130,4 @@ int main(int argc, char** argv)
 
 	//define ranges
  */
+
