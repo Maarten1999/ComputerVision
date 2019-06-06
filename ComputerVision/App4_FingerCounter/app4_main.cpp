@@ -1,3 +1,6 @@
+// https://www.codeproject.com/Articles/782602/Beginners-guide-to-understand-Fingertips-counting
+// https://picoledelimao.github.io/blog/2015/11/15/fingertip-detection-on-opencv/
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp> 
 #include <opencv2/highgui/highgui.hpp>
@@ -17,10 +20,8 @@ using std::string;
 
 #define ESCAPE_KEY 27
 #define WINDOW_NAME "WINDOW"
+#define DILATE_WINDOW "Dilatie"
 
-typedef cv::Ptr<cv::BackgroundSubtractorMOG2> MOG2Ptr;
-
-Mat subMask(MOG2Ptr sub, const Mat& frame);
 
 float innerAngle(float px1, float py1, float px2, float py2, float cx1, float cy1)
 {
@@ -82,12 +83,14 @@ int main(int argc, char** argv)
 	double dHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 	cout << "Frame size : " << dWidth << " x " << dHeight << endl;
 
-	MOG2Ptr subtractor;
-	//subtractor = cv::createBackgroundSubtractorMOG2(10, 30, false);
+	// Trackbar waardes.
 	int inAngleMin = 120, inAngleMax = 300, angleMin = 120, angleMax = 359, lengthMin = 10, lengthMax = 80;
 
+	// Creeër venster.
 	cv::namedWindow(WINDOW_NAME);
 	int minH = 0, maxH = 73, minS = 40, maxS = 200, minV = 16, maxV = 255;
+
+	// Maak trackbars aan.
 	cv::createTrackbar("MinH", WINDOW_NAME, &minH, 180);
 	cv::createTrackbar("MaxH", WINDOW_NAME, &maxH, 180);
 	cv::createTrackbar("MinS", WINDOW_NAME, &minS, 255);
@@ -100,37 +103,43 @@ int main(int argc, char** argv)
 	{
 		if (!cap.read(frame))
 		{
-			cout << "Failed to read frame\n"; 
+			cout << "Failed to read frame\n";
 			break;
 		}
 
-		//Mat res = subMask(subtractor, frame);
 		Mat hsv;
+		// Converteer naar HSV waarde om bewerkingen op te doen.
 		cv::cvtColor(frame, hsv, CV_BGR2HSV);
+		// Zoek in kleuren range (huidskleur)
 		cv::inRange(hsv, cv::Scalar(minH, minS, minV), cv::Scalar(maxH, maxS, maxV), hsv);
+
 		int blurSize = 5;
 		int elementSize = 5;
+		// Median blur om aparte pixels te verwijderen.
 		cv::medianBlur(hsv, hsv, blurSize);
+		// Element voor dilatie.
 		cv::Mat element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * elementSize + 1, 2 * elementSize + 1), cv::Point(elementSize, elementSize));
+		// Vul de verwijderde pixels op met dilatie.
 		cv::dilate(hsv, hsv, element);
-		cv::imshow("DILATE", hsv);
-		// Contour 
+		cv::imshow(DILATE_WINDOW, hsv);
+
 		std::vector<std::vector<cv::Point> > contours;
 		std::vector<cv::Vec4i> hierarchy;
+		// Vind hand contour
 		cv::findContours(hsv, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 		size_t largestContour = 0;
 		bool handFound = false;
+		// Berekend de contour grootte, als deze te klein is is dit geen hand en wordt deze niet meegenomen.
 		for (size_t i = 1; i < contours.size(); i++)
 		{
-			
 			const double contourArea = cv::contourArea(contours[i]);
-			
+
 			if (contourArea < 2000)
 				continue;
 			handFound = true;
-		
+
 			const double largestContourArea = cv::contourArea(contours[largestContour]);
-			
+
 			if (contourArea > largestContourArea)
 				largestContour = i;
 		}
@@ -193,20 +202,3 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
-
-Mat subMask(MOG2Ptr sub, const Mat& frame)
-{
-	Mat mask;
-	sub->apply(frame, mask, 0);
-	
-	cv::MatExpr kernel = Mat::ones(cv::Size(4, 4), CV_8U);
-	cv::morphologyEx(mask, mask, cv::MORPH_OPEN, kernel, cv::Point(-1,-1), 2);
-	cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel, cv::Point(-1,-1), 2);
-
-	Mat result;
-	cv::bitwise_and(frame, frame, result, mask);
-	
-	return result;
-}
-
-
