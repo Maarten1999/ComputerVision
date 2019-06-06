@@ -70,7 +70,7 @@ float innerAngle(float px1, float py1, float px2, float py2, float cx1, float cy
 
 int main(int argc, char** argv)
 {
-	VideoCapture cap(1);
+	VideoCapture cap(0);
 
 	if (!cap.isOpened())
 	{
@@ -84,10 +84,10 @@ int main(int argc, char** argv)
 
 	MOG2Ptr subtractor;
 	//subtractor = cv::createBackgroundSubtractorMOG2(10, 30, false);
-	int inAngleMin = 200, inAngleMax = 300, angleMin = 180, angleMax = 359, lengthMin = 10, lengthMax = 80;
+	int inAngleMin = 120, inAngleMax = 300, angleMin = 120, angleMax = 359, lengthMin = 10, lengthMax = 80;
 
 	cv::namedWindow(WINDOW_NAME);
-	int minH = 0, maxH = 73, minS = 0, maxS = 201, minV = 16, maxV = 255;
+	int minH = 0, maxH = 73, minS = 40, maxS = 200, minV = 16, maxV = 255;
 	cv::createTrackbar("MinH", WINDOW_NAME, &minH, 180);
 	cv::createTrackbar("MaxH", WINDOW_NAME, &maxH, 180);
 	cv::createTrackbar("MinS", WINDOW_NAME, &minS, 255);
@@ -119,60 +119,73 @@ int main(int argc, char** argv)
 		std::vector<cv::Vec4i> hierarchy;
 		cv::findContours(hsv, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 		size_t largestContour = 0;
+		bool handFound = false;
 		for (size_t i = 1; i < contours.size(); i++)
 		{
-			if (cv::contourArea(contours[i]) > cv::contourArea(contours[largestContour]))
+			
+			const double contourArea = cv::contourArea(contours[i]);
+			
+			if (contourArea < 2000)
+				continue;
+			handFound = true;
+		
+			const double largestContourArea = cv::contourArea(contours[largestContour]);
+			
+			if (contourArea > largestContourArea)
 				largestContour = i;
 		}
-		cv::drawContours(frame, contours, largestContour, cv::Scalar(255, 0, 0), 1);
-		
-		// Convex hull
-		if (!contours.empty())
+
+		if (handFound)
 		{
-			
-			std::vector<std::vector<cv::Point> > hull(1);
-			Mat largestContourMat = cv::Mat(contours[largestContour]);
-			cv::convexHull(largestContourMat, hull[0], false);
-			cv::drawContours(frame, hull, 0, cv::Scalar(66, 116, 244), 3);
+			cv::drawContours(frame, contours, largestContour, cv::Scalar(255, 0, 0), 1);
 
-			if (hull[0].size() > 2)
+			// Convex hull
+			if (!contours.empty())
 			{
-				vector<cv::Vec4i> convexityDefects;
-				vector<int> hullIndexes;
-				cv::convexHull(largestContourMat, hullIndexes, true);
-				cv::convexityDefects(largestContourMat, hullIndexes, convexityDefects);
+				std::vector<std::vector<cv::Point> > hull(1);
+				Mat largestContourMat = cv::Mat(contours[largestContour]);
+				cv::convexHull(largestContourMat, hull[0], false);
+				cv::drawContours(frame, hull, 0, cv::Scalar(66, 116, 244), 3);
 
-				cv::Rect boundingBox = cv::boundingRect(hull[0]);
-				cv::rectangle(frame, boundingBox, cv::Scalar(255, 0, 0));
-				cv::Point center = cv::Point(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height / 2);
-
-				vector<cv::Point> fingers;
-				for (int i = 0; i < convexityDefects.size(); i++)
+				if (hull[0].size() > 2)
 				{
-					cv::Point p1 = contours[largestContour][convexityDefects[i][0]];
-					cv::Point p2 = contours[largestContour][convexityDefects[i][1]];
-					cv::Point p3 = contours[largestContour][convexityDefects[i][2]];
-					cv::line(frame, p1, p3, cv::Scalar(0, 0, 255), 2);
-					cv::line(frame, p3, p2, cv::Scalar(0, 0, 255), 2);
+					vector<cv::Vec4i> convexityDefects;
+					vector<int> hullIndexes;
+					cv::convexHull(largestContourMat, hullIndexes, true);
+					cv::convexityDefects(largestContourMat, hullIndexes, convexityDefects);
 
-					double angle = std::atan2(center.y - p1.y, center.x - p1.x) * 180 / CV_PI;
-					double inAngle = innerAngle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-					double length = std::sqrt(std::pow(p1.x - p3.x, 2) + std::pow(p1.y - p3.y, 2));
-					if (angle > angleMin - 180 && angle < angleMax - 180 && inAngle > inAngleMin - 180 && inAngle < inAngleMax - 180 && length > lengthMin / 100.0 * boundingBox.height && length < lengthMax / 100.0 * boundingBox.height)
+					cv::Rect boundingBox = cv::boundingRect(hull[0]);
+					cv::rectangle(frame, boundingBox, cv::Scalar(255, 0, 0));
+					cv::Point center = cv::Point(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height / 2);
+
+					vector<cv::Point> fingers;
+					for (int i = 0; i < convexityDefects.size(); i++)
 					{
-						fingers.push_back(p1);
+						cv::Point p1 = contours[largestContour][convexityDefects[i][0]];
+						cv::Point p2 = contours[largestContour][convexityDefects[i][1]];
+						cv::Point p3 = contours[largestContour][convexityDefects[i][2]];
+						cv::line(frame, p1, p3, cv::Scalar(0, 0, 255), 2);
+						cv::line(frame, p3, p2, cv::Scalar(0, 0, 255), 2);
+
+						double angle = std::atan2(center.y - p1.y, center.x - p1.x) * 180 / CV_PI;
+						double inAngle = innerAngle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+						double length = std::sqrt(std::pow(p1.x - p3.x, 2) + std::pow(p1.y - p3.y, 2));
+						if (angle > angleMin - 180 && angle < angleMax - 180 && inAngle > inAngleMin - 180 && inAngle < inAngleMax - 180 && length > lengthMin / 100.0 * boundingBox.height && length < lengthMax / 100.0 * boundingBox.height)
+						{
+							fingers.push_back(p1);
+						}
+
 					}
-				
+
+					for (size_t i = 0; i < fingers.size(); i++)
+					{
+						cv::circle(frame, fingers[i], 9, cv::Scalar(0, 255, 0), 2);
+					}
+
+					std::string text = "Fingers: " + std::to_string(fingers.size());
+					cv::putText(frame, text, cv::Point(20, 30), CV_FONT_NORMAL, 0.8, cv::Scalar(255, 255, 255));
+
 				}
-
-				for (size_t i = 0; i < fingers.size(); i++)
-				{
-					cv::circle(frame, fingers[i], 9, cv::Scalar(0, 255, 0), 2);
-				}
-
-				std::string text = "Fingers: " + fingers.size();
-				cv::putText(frame, text, cv::Point(20, 30), CV_FONT_NORMAL, 0.8, cv::Scalar(255, 255, 255));
-
 			}
 		}
 
