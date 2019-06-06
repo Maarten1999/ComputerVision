@@ -16,6 +16,7 @@ using std::vector;
 using std::string;
 
 #define ESCAPE_KEY 27
+#define WINDOW_NAME "WINDOW"
 
 typedef cv::Ptr<cv::BackgroundSubtractorMOG2> MOG2Ptr;
 
@@ -23,12 +24,7 @@ Mat subMask(MOG2Ptr sub, const Mat& frame);
 
 int main(int argc, char** argv)
 {
-	const auto color_lowest = cv::Scalar(2, 80, 150);//8, 40, 150
-	const auto color_highest = cv::Scalar(20, 255, 255); // 20,255,255
-
-	cv::Mat frame, scaled_frame, flipped_frame, blurred, hsv, color_mask;
-
-	VideoCapture cap(0);
+	VideoCapture cap(1);
 
 	if (!cap.isOpened())
 	{
@@ -40,24 +36,58 @@ int main(int argc, char** argv)
 	double dHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 	cout << "Frame size : " << dWidth << " x " << dHeight << endl;
 
-	const auto element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5));
-
 	MOG2Ptr subtractor;
-	subtractor = cv::createBackgroundSubtractorMOG2(10, 30, false);
+	//subtractor = cv::createBackgroundSubtractorMOG2(10, 30, false);
+
+	cv::namedWindow(WINDOW_NAME);
+	int minH = 0, maxH = 73, minS = 0, maxS = 201, minV = 16, maxV = 255;
+	cv::createTrackbar("MinH", WINDOW_NAME, &minH, 180);
+	cv::createTrackbar("MaxH", WINDOW_NAME, &maxH, 180);
+	cv::createTrackbar("MinS", WINDOW_NAME, &minS, 255);
+	cv::createTrackbar("MaxS", WINDOW_NAME, &maxS, 255);
+	cv::createTrackbar("MinV", WINDOW_NAME, &minV, 255);
+	cv::createTrackbar("MaxV", WINDOW_NAME, &maxV, 255);
+
+	Mat frame;
 	while (cv::waitKey(1) != ESCAPE_KEY)
 	{
-		std::vector<cv::Mat> contours;
-		vector<cv::Vec4i> hierarchy;
-
 		if (!cap.read(frame))
 		{
 			cout << "Failed to read frame\n"; 
 			break;
 		}
-		Mat res = subMask(subtractor, frame);
-		
-		cv::imshow("WINDOW", res);
 
+		//Mat res = subMask(subtractor, frame);
+		Mat hsv;
+		cv::cvtColor(frame, hsv, CV_BGR2HSV);
+		cv::inRange(hsv, cv::Scalar(minH, minS, minV), cv::Scalar(maxH, maxS, maxV), hsv);
+		int blurSize = 5;
+		int elementSize = 5;
+		cv::medianBlur(hsv, hsv, blurSize);
+		cv::Mat element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * elementSize + 1, 2 * elementSize + 1), cv::Point(elementSize, elementSize));
+		cv::dilate(hsv, hsv, element);
+		cv::imshow("DILATE", hsv);
+		// Contour 
+		std::vector<std::vector<cv::Point> > contours;
+		std::vector<cv::Vec4i> hierarchy;
+		cv::findContours(hsv, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+		size_t largestContour = 0;
+		for (size_t i = 1; i < contours.size(); i++)
+		{
+			if (cv::contourArea(contours[i]) > cv::contourArea(contours[largestContour]))
+				largestContour = i;
+		}
+		cv::drawContours(frame, contours, largestContour, cv::Scalar(255, 0, 0), 1);
+		
+		// Convex hull
+		if (!contours.empty())
+		{
+			std::vector<std::vector<cv::Point> > hull(1);
+			cv::convexHull(cv::Mat(contours[largestContour]), hull[0], false);
+			cv::drawContours(frame, hull, 0, cv::Scalar(66, 116, 244), 3);
+		}
+
+		cv::imshow(WINDOW_NAME, frame);
 	}
 	return 0;
 }
