@@ -4,11 +4,11 @@ Maarten Penning &amp; Dion van der Linden
 
 <h3>Ini file structuur</h3>
 [MinHSV]
-H=0
-S=0
-V=0
+<p>H=0</p>
+<p>S=0</p>
+<p>V=0</p>
 
 [MaxHSV]
-H=255
-S=255
-V=255
+<p>H=255</p>
+<p>S=255</p>
+<p>V=255</p>
