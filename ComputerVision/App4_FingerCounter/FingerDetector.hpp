@@ -49,5 +49,5 @@ private:
 	// Vind vingers op de hand.
 	Fingers findFingers(cv::Mat& frame, Contours& contours, int largestContour);
 	// Vind hoek tussen de vingers.
-	float findInnerAngle(float px1, float py1, float px2, float py2, float cx1, float cy1);
+	double findInnerAngle(double px1, double py1, double px2, double py2, double cx1, double cy1);
 };

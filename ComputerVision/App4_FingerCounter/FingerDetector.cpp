@@ -141,14 +141,14 @@ Fingers FingerDetector::findFingers(Mat& frame, Contours& contours, int largestC
 }
 
 // Vind hoek tussen vingers.
-float FingerDetector::findInnerAngle(float px1, float py1, float px2, float py2, float cx1, float cy1)
+double FingerDetector::findInnerAngle(double px1, double py1, double px2, double py2, double cx1, double cy1)
 {
-	float dist1 = std::sqrt((px1 - cx1)*(px1 - cx1) + (py1 - cy1)*(py1 - cy1));
-	float dist2 = std::sqrt((px2 - cx1)*(px2 - cx1) + (py2 - cy1)*(py2 - cy1));
+	double dist1 = std::sqrt((px1 - cx1)*(px1 - cx1) + (py1 - cy1)*(py1 - cy1));
+	double dist2 = std::sqrt((px2 - cx1)*(px2 - cx1) + (py2 - cy1)*(py2 - cy1));
 
-	float Ax, Ay;
-	float Bx, By;
-	float Cx, Cy;
+	double Ax, Ay;
+	double Bx, By;
+	double Cx, Cy;
 
 	Cx = cx1;
 	Cy = cy1;
@@ -168,13 +168,13 @@ float FingerDetector::findInnerAngle(float px1, float py1, float px2, float py2,
 	}
 
 
-	float Q1 = Cx - Ax;
-	float Q2 = Cy - Ay;
-	float P1 = Bx - Ax;
-	float P2 = By - Ay;
+	double Q1 = Cx - Ax;
+	double Q2 = Cy - Ay;
+	double P1 = Bx - Ax;
+	double P2 = By - Ay;
 
 
-	float A = std::acos((P1*Q1 + P2 * Q2) / (std::sqrt(P1*P1 + P2 * P2) * std::sqrt(Q1*Q1 + Q2 * Q2)));
+	double A = std::acos((P1*Q1 + P2 * Q2) / (std::sqrt(P1*P1 + P2 * P2) * std::sqrt(Q1*Q1 + Q2 * Q2)));
 	
 	A = A * 180 / CV_PI;
 
