@@ -18,5 +18,16 @@
     <ClCompile Include="app4_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FingerDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="INIReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FingerDetector.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
